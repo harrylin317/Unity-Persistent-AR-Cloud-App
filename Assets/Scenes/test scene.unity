@@ -1046,6 +1046,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 862933463}
+  - component: {fileID: 862933464}
   m_Layer: 0
   m_Name: Sticky Note
   m_TagString: Untagged
@@ -1069,6 +1070,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &862933464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 862933462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8100af0397ba3b47994154c7c922665, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anchorPlane: {fileID: 0}
 --- !u!1 &988077556
 GameObject:
   m_ObjectHideFlags: 0
