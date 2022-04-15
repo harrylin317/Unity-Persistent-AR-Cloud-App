@@ -2,31 +2,52 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 
 [Serializable]
-public struct CloudAnchorHistory
+public struct ARCloudAnchorHistory
 {
-    public string Name;
-    public string Id;
+    public string AnchorName;
+    public string AnchorID;
     public string SerializedTime;
+    public int PrefabIndex;
+    public string ObjectName;
     public string ObjectText;
+    public ARAnchor arAnchor;
 
-    public CloudAnchorHistory(string name, string id, DateTime time)
+    //used when first queing anchor 
+    public ARCloudAnchorHistory(int index, string objectName, ARAnchor anchor)
     {
-        Name = name;
-        Id = id;
-        SerializedTime = time.ToString();
+        AnchorName = null;
+        AnchorID = null;
+        SerializedTime = null;
+        PrefabIndex = index;
+        ObjectName = objectName;
         ObjectText = "";
-
+        arAnchor = anchor;
     }
 
-    public CloudAnchorHistory(string name, string id, DateTime time, string text)
+    public ARCloudAnchorHistory(string name, string id, DateTime time, int index, string objectName)
     {
-        Name = name;
-        Id = id;
+        AnchorName = name;
+        AnchorID = id;
         SerializedTime = time.ToString();
+        PrefabIndex = index;
+        ObjectName = objectName;
+        ObjectText = "";
+        arAnchor = null;
+    }
+
+    public ARCloudAnchorHistory(string name, string id, DateTime time, int index, string objectName, string text)
+    {
+        AnchorName = name;
+        AnchorID = id;
+        SerializedTime = time.ToString();
+        PrefabIndex = index;
+        ObjectName = objectName;
         ObjectText = text;
+        arAnchor = null;
 
     }
 
@@ -44,9 +65,9 @@ public struct CloudAnchorHistory
 
 }
 [Serializable]
-public class CloudAnchorHistoryCollection
+public class ARCloudAnchorHistoryCollection
 {
-    public List<CloudAnchorHistory> Collection = new List<CloudAnchorHistory>();
+    public List<ARCloudAnchorHistory> Collection = new List<ARCloudAnchorHistory>();
 }
 
 
