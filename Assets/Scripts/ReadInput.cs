@@ -18,10 +18,12 @@ public class ReadInput : MonoBehaviour
     private ARCloudAnchorHistory hostedCloudAnchor;
     private string cloudAnchorsStorageKey;
     private int storageLimit = 10;
-
+    [SerializeField]
+    private GameObject group;
     // Start is called before the first frame update
     void Start()
     {
+        //inputField.gameObject.SetActive(false);
         GameObject getCanvas = editedGameObject.transform.GetChild(1).gameObject;
         selectedText = getCanvas.GetComponentInChildren<TextMeshProUGUI>();
 
@@ -49,7 +51,7 @@ public class ReadInput : MonoBehaviour
     {
         testComponent.testVariable = true;
         currentInputText = inputField.text;
-        selectedText.text = currentInputText;
+        //selectedText.text = currentInputText;
     }
 
     public void SavedText()
@@ -65,6 +67,7 @@ public class ReadInput : MonoBehaviour
         bool checkValue = editedGameObject.GetComponent<anchorPlaneLocation>().testVariable;
         Debug.Log($"test result is: {checkValue}");
 
+        group.gameObject.SetActive(true);
 
 
     }

@@ -5,11 +5,13 @@ using UnityEngine.XR.ARFoundation;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
+using TMPro;
 
 public class ARPlacementManager : MonoBehaviour
 {
     public static ARPlacementManager Instance;
 
+    private bool start = false;
     [Header("AR Foundation")]
     [SerializeField]
     private ARSession session;
@@ -39,8 +41,8 @@ public class ARPlacementManager : MonoBehaviour
 
     //placing and selecting object
     [Header("Object Placement")]
-    [SerializeField]
-    private GameObject objectToPlace;
+    /*[SerializeField]
+    private GameObject objectToPlace;*/
     [SerializeField]
     private GameObject placementIndicator;
     [SerializeField]
@@ -55,19 +57,27 @@ public class ARPlacementManager : MonoBehaviour
     private int maxObjectPlacedCount = 5;
     private int placedObjectCount = 0;
     //private int currentNameNum = -1;
+    [HideInInspector]
+    public string savedAnchorName = null;
 
     [Header("UI")]
     //UI
     [SerializeField]
-    private Button togglePlaneDetectionButton;
+    private GameObject startGroup;
+    [SerializeField]
+    private GameObject sceneGroup;
     [SerializeField]
     private GameObject selectObjectButtons;
+    [SerializeField]
+    private Button togglePlaneDetectionButton;
     [SerializeField]
     private Button placeObjectButton;
     [SerializeField]
     private TMPro.TextMeshProUGUI objectLocationText;
     [SerializeField]
     private TMPro.TextMeshProUGUI scanningText;
+    [SerializeField]
+    public GameObject nameInputGroup;
     // Start is called before the first frame update
     void Awake()
     {
@@ -82,12 +92,20 @@ public class ARPlacementManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        arPlaneManager.enabled = false;
+    }
     // Update is called once per frame
     void Update()
     {
-        UpdatePlacementIndicator();
-        DragObject();
-        UpdateUI();
+        if (start)
+        {
+            UpdatePlacementIndicator();
+            DragObject();
+            UpdateUI();
+        }
+        
     }
 
     void UpdateUI()
@@ -97,6 +115,7 @@ public class ARPlacementManager : MonoBehaviour
         {
             placeObjectButton.gameObject.SetActive(false);
             selectObjectButtons.SetActive(true);
+
             //changeObjectButtons.SetActive(false);
         }
         else
@@ -124,12 +143,13 @@ public class ARPlacementManager : MonoBehaviour
         raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
 
         placementPoseIsValid = hits.Count > 0;
-        if (placementPoseIsValid)
+        if (placementPoseIsValid && selectedObject == null)
         {
             placementIndicatorPose = hits[0].pose;
             hitPlane = arPlaneManager.GetPlane(hits[0].trackableId);
+           
+            placementIndicator.SetActive(true);          
 
-            placementIndicator.SetActive(true);
             placementIndicator.transform.SetPositionAndRotation(placementIndicatorPose.position, placementIndicatorPose.rotation);
         }
         else
@@ -139,6 +159,16 @@ public class ARPlacementManager : MonoBehaviour
 
     }
 
+    public void StartScene()
+    {
+        
+        startGroup.gameObject.SetActive(false);
+        sceneGroup.gameObject.SetActive(true);
+        scanningText.gameObject.SetActive(true);
+        arPlaneManager.enabled = true;
+        start = true;
+
+    }
     public void PlaceObject()
     {
         placedObjectCount = objectPlacedList.Count;
@@ -151,18 +181,7 @@ public class ARPlacementManager : MonoBehaviour
             //set initialized hit plane to the object
             selectedObjectPlane = newObjectPlaced.GetComponent<anchorPlaneLocation>();
             selectedObjectPlane.anchorPlane = hitPlane;
-            //placedObjectCount++;
-
-
-            //if (currentNameNum == -1)
-            //{
-            //    newObjectPlaced.name = placedObjectCount.ToString() + "-" + objectToPlaceList[objectToPlaceIndex].name;
-            //}
-            //else
-            //{
-            //    newObjectPlaced.name = currentNameNum.ToString() + "-" + objectToPlaceList[objectToPlaceIndex].name;
-            //    currentNameNum = -1;
-            //}
+            
             newObjectPlaced.name = "PrefabIndex-" + objectToPlaceIndex + "-" + objectToPlaceList[objectToPlaceIndex].name + "-" + placedObjectCount;
             objectPlacedList.Add(newObjectPlaced);
 
@@ -179,17 +198,27 @@ public class ARPlacementManager : MonoBehaviour
 
     }
 
+    public void SaveButtonPress()
+    {        
+        nameInputGroup.gameObject.SetActive(true);
+        sceneGroup.gameObject.SetActive(false);
+        selectObjectButtons.SetActive(false);
+        scanningText.gameObject.SetActive(false);
+
+
+        return;               
+    }
 
     public void PlaceAnchor()
     {
-        if(selectedObject != null && selectedObjectPlane != null)
+        if (selectedObject != null && selectedObjectPlane != null)
         {
             ARPlane anchorPlane = selectedObject.GetComponent<anchorPlaneLocation>().anchorPlane;
-            if(anchorPlane == null)
+            if (anchorPlane == null)
             {
                 Debug.Log("no planes attached to object");
             }
-            Pose objectPose = new Pose (selectedObject.transform.position, selectedObject.transform.rotation);
+            Pose objectPose = new Pose(selectedObject.transform.position, selectedObject.transform.rotation);
             ARAnchor anchor = arAnchorManager.AttachAnchor(anchorPlane, objectPose);
 
             //get the prefab index value from selected object name
@@ -203,13 +232,13 @@ public class ARPlacementManager : MonoBehaviour
             int prefabIndexInt = Int32.Parse(prefabIndex);
             Debug.Log("pased success, value is: " + prefabIndexInt);
 
+            Vector3 scale = selectedObject.transform.localScale;
+            //InputAnchorName();
 
-
-
-            ARCloudAnchorHistory queueARAnchor = new ARCloudAnchorHistory(prefabIndexInt, objectName, anchor);
+            ARCloudAnchorHistory queueARAnchor = new ARCloudAnchorHistory(savedAnchorName, prefabIndexInt, objectName, anchor, scale);
             ARCloudAnchorManager.Instance.QueueAnchor(queueARAnchor);
             ARCloudAnchorManager.Instance.HostAnchor();
-
+            savedAnchorName = null;
         }
     }
 
@@ -222,6 +251,7 @@ public class ARPlacementManager : MonoBehaviour
         objectName = split[0] + "-" + split[1] + "-" + split[2] + "-" + placedObjectCount;
 
         newObjectPlaced = Instantiate(objectToPlaceList[anchorData.PrefabIndex], resolvedAnchorTransform.position, resolvedAnchorTransform.rotation);
+        newObjectPlaced.transform.localScale = anchorData.ObjectScale;
         newObjectPlaced.GetComponent<Outline>().enabled = false;
 
         if (raycastManager.Raycast(resolvedAnchorTransform.position, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes))
@@ -294,7 +324,7 @@ public class ARPlacementManager : MonoBehaviour
         togglePlaneDetectionButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = arPlaneManager.enabled ? "Disable Plane Detection" : "Enable Plane Detection";
         Debug.Log("toggling button to" + arPlaneManager.enabled.ToString());
     }
-
+           
     void DragObject()
     {
         if (Input.touchCount > 0)
@@ -376,7 +406,9 @@ public class ARPlacementManager : MonoBehaviour
                     hitPlane = arPlaneManager.GetPlane(hits[0].trackableId);
                     selectedObjectPlane.anchorPlane = hitPlane;
                     selectedObject.transform.position = hitPose.position;
-                    //selectedObject.transform.rotation = hitPose.rotation;                                       
+                    //selectedObject.transform.rotation = hitPose.rotation;
+                    objectLocationText.gameObject.SetActive(true);
+                    objectLocationText.text = $"Object moved to:\n {selectedObject.transform.position} , {selectedObject.transform.rotation}";
                 }
             }
         }

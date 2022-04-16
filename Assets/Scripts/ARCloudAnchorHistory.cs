@@ -15,39 +15,58 @@ public struct ARCloudAnchorHistory
     public string ObjectName;
     public string ObjectText;
     public ARAnchor arAnchor;
+    public Vector3 ObjectScale;
 
-    //used when first queing anchor 
-    public ARCloudAnchorHistory(int index, string objectName, ARAnchor anchor)
+    //used to create empty struct
+    public ARCloudAnchorHistory(int empty)
     {
         AnchorName = null;
         AnchorID = null;
         SerializedTime = null;
-        PrefabIndex = index;
-        ObjectName = objectName;
-        ObjectText = "";
-        arAnchor = anchor;
+        PrefabIndex = 0;
+        ObjectName = null;
+        ObjectText = null;
+        arAnchor = null;
+        ObjectScale = Vector3.zero;
     }
 
-    public ARCloudAnchorHistory(string name, string id, DateTime time, int index, string objectName)
+    //used when first queing anchor 
+    public ARCloudAnchorHistory(string anchorName, int index, string objectName, ARAnchor anchor, Vector3 scale)
     {
-        AnchorName = name;
+        AnchorName = anchorName;
+        AnchorID = null;
+        SerializedTime = null;
+        PrefabIndex = index;
+        ObjectName = objectName;
+        ObjectText = null;
+        arAnchor = anchor;
+        ObjectScale = scale;
+    }
+
+    public ARCloudAnchorHistory(string anchorName, string id, DateTime time, int index, string objectName, Vector3 scale)
+    {
+        AnchorName = anchorName;
         AnchorID = id;
         SerializedTime = time.ToString();
         PrefabIndex = index;
         ObjectName = objectName;
-        ObjectText = "";
+        ObjectText = null;
         arAnchor = null;
+        ObjectScale = scale;
+
     }
 
-    public ARCloudAnchorHistory(string name, string id, DateTime time, int index, string objectName, string text)
+    public ARCloudAnchorHistory(string anchorName, string id, DateTime time, int index, string objectName, string text, Vector3 scale)
     {
-        AnchorName = name;
+        AnchorName = anchorName;
         AnchorID = id;
         SerializedTime = time.ToString();
         PrefabIndex = index;
         ObjectName = objectName;
         ObjectText = text;
         arAnchor = null;
+        ObjectScale = scale;
+
 
     }
 

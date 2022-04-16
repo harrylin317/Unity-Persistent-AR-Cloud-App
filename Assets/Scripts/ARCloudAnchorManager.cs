@@ -25,9 +25,9 @@ public class ARCloudAnchorManager : MonoBehaviour
 
     private ARAnchorManager arAnchorManager = null;
 
-    private ARCloudAnchorHistory pendingHostAnchor = new ARCloudAnchorHistory(0,"", null);
+    private ARCloudAnchorHistory pendingHostAnchor = new ARCloudAnchorHistory(0);
 
-    private ARCloudAnchorHistory currentResolvingAnchor = new ARCloudAnchorHistory(0,"", null);
+    private ARCloudAnchorHistory currentResolvingAnchor = new ARCloudAnchorHistory(0);
 
     private List<ARCloudAnchor> pendingCloudAnchors = new List<ARCloudAnchor>();
 
@@ -181,10 +181,11 @@ public class ARCloudAnchorManager : MonoBehaviour
 
             anchorIdToResolve = cloudAnchor.cloudAnchorId;
 
-            int count = LoadCloudAnchorHistory().Collection.Count;
+            //int count = LoadCloudAnchorHistory().Collection.Count;
             DateTime creationTime = DateTime.Now;
 
-            ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory("CloudAnchor" + count, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName);
+            //ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory("CloudAnchor" + count, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, pendingHostAnchor.ObjectScale);
+            ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory(pendingHostAnchor.AnchorName, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, pendingHostAnchor.ObjectScale);
             SaveCloudAnchorHistory(saveAnchorHistory);
             //PlayerPrefs.SetString(cloudAnchorsStorageKey, anchorIdToResolve);
             //PlayerPrefs.Save();
@@ -193,7 +194,7 @@ public class ARCloudAnchorManager : MonoBehaviour
             Debug.Log($"Saved to PlayerPref: {PlayerPrefs.GetString(cloudAnchorsStorageKey)}");
 
 
-            pendingHostAnchor = new ARCloudAnchorHistory(0, "", null);
+            pendingHostAnchor = new ARCloudAnchorHistory(0);
 
 
 
@@ -203,7 +204,7 @@ public class ARCloudAnchorManager : MonoBehaviour
             Debug.LogError($"Error while hosting cloud anchor {cloudAnchorState}");
             anchorHostInProgress = false;
             progressText.text = "Hosting Failed";
-            pendingHostAnchor = new ARCloudAnchorHistory(0, "", null);
+            pendingHostAnchor = new ARCloudAnchorHistory(0);
 
 
         }
@@ -222,7 +223,7 @@ public class ARCloudAnchorManager : MonoBehaviour
             Debug.Log($"Successfully Resolved Cloud Anchor: {cloudAnchor.cloudAnchorId}");
             Debug.Log($"resolved cloud anchor position: {cloudAnchor.transform.position},{cloudAnchor.transform.rotation} ");
             cloudAnchorCreatedEvent?.Invoke(cloudAnchor.transform, currentResolvingAnchor);
-            currentResolvingAnchor = new ARCloudAnchorHistory(0, "", null);
+            currentResolvingAnchor = new ARCloudAnchorHistory(0);
 
         }
         else if (cloudAnchorState != CloudAnchorState.TaskInProgress)
@@ -230,7 +231,7 @@ public class ARCloudAnchorManager : MonoBehaviour
             Debug.LogError($"Error while resolving cloud anchor {cloudAnchorState}");
             anchorResolveInProgress = false;
             progressText.text = "Resolving Failed";
-            currentResolvingAnchor = new ARCloudAnchorHistory(0, "", null);
+            currentResolvingAnchor = new ARCloudAnchorHistory(0);
 
         }
     }
