@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using System;
 
@@ -20,6 +21,18 @@ public class ReadInput : MonoBehaviour
     private int storageLimit = 10;
     [SerializeField]
     private GameObject group;
+    [SerializeField]
+    private TMP_Dropdown dropDown;
+    [SerializeField]
+    private Button selectAnchor;
+    [SerializeField]
+    private TextMeshProUGUI sampleText;
+    List<string> itemsList = new List<string>();
+
+
+    private ARCloudAnchorHistory cloudData1 = new ARCloudAnchorHistory("TestAnchor1", 1, "Cylinder", null, Vector3.zero);
+    private ARCloudAnchorHistory cloudData2 = new ARCloudAnchorHistory("TestAnchor2", 2, "Box", null, Vector3.zero);
+    private ARCloudAnchorHistoryCollection dataList = new ARCloudAnchorHistoryCollection();
     // Start is called before the first frame update
     void Start()
     {
@@ -35,6 +48,11 @@ public class ReadInput : MonoBehaviour
             Debug.Log("has key " + PlayerPrefs.GetString("SavedInputText"));
             selectedText.text = PlayerPrefs.GetString("SavedInputText");
         }
+
+        dataList.Collection.Add(cloudData1);
+        dataList.Collection.Add(cloudData2);
+        DropDownList();
+
     }
 
     // Update is called once per frame
@@ -69,43 +87,28 @@ public class ReadInput : MonoBehaviour
 
         group.gameObject.SetActive(true);
 
-
+        sampleText.gameObject.SetActive(true);
     }
-    public ARCloudAnchorHistoryCollection LoadCloudAnchorHistory()
+    
+    public void DropDownList()
     {
-        if (PlayerPrefs.HasKey(cloudAnchorsStorageKey))
+        dropDown.ClearOptions();
+        itemsList = new List<string>();
+        foreach (var data in dataList.Collection)
         {
-            var history = JsonUtility.FromJson<ARCloudAnchorHistoryCollection>(
-                PlayerPrefs.GetString(cloudAnchorsStorageKey));
-
-            // Remove all records created more than 24 hours and update stored history.
-            DateTime current = DateTime.Now;
-            history.Collection.RemoveAll(
-                data => current.Subtract(data.CreatedTime).Days > 0);
-            PlayerPrefs.SetString(cloudAnchorsStorageKey,
-                JsonUtility.ToJson(history));
-            return history;
+            itemsList.Add(data.AnchorName);
         }
-
-        return new ARCloudAnchorHistoryCollection();
+        dropDown.AddOptions(itemsList);
     }
-    public void SaveCloudAnchorHistory(ARCloudAnchorHistory data)
+
+    public void SelectAnchorButton()
     {
-        var history = LoadCloudAnchorHistory();
+        Debug.Log(dropDown.value);
+        int selectedIndex = dropDown.value;
+        dropDown.options.RemoveAt(selectedIndex);
+        itemsList.RemoveAt(selectedIndex);
+        dropDown.RefreshShownValue();
 
-        // Sort the data from latest record to oldest record which affects the option order in
-        // multiselection dropdown.
-        history.Collection.Add(data);
-        history.Collection.Sort((left, right) => right.CreatedTime.CompareTo(left.CreatedTime));
-
-        // Remove the oldest data if the capacity exceeds storage limit.
-        if (history.Collection.Count > storageLimit)
-        {
-            history.Collection.RemoveRange(
-                storageLimit, history.Collection.Count - storageLimit);
-        }
-
-        PlayerPrefs.SetString(cloudAnchorsStorageKey, JsonUtility.ToJson(history));
     }
 
 

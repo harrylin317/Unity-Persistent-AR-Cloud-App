@@ -13,14 +13,10 @@ public class ARPlacementManager : MonoBehaviour
 
     private bool start = false;
     [Header("AR Foundation")]
-    [SerializeField]
-    private ARSession session;
-    [SerializeField]
-    private ARPlaneManager arPlaneManager;
-    [SerializeField]
-    private ARAnchorManager arAnchorManager;
-    [SerializeField]
-    private ARRaycastManager raycastManager;
+    public ARSession session;
+    public ARPlaneManager arPlaneManager;
+    public ARAnchorManager arAnchorManager;
+    public ARRaycastManager raycastManager;
     
         
     //ray casting
@@ -41,8 +37,6 @@ public class ARPlacementManager : MonoBehaviour
 
     //placing and selecting object
     [Header("Object Placement")]
-    /*[SerializeField]
-    private GameObject objectToPlace;*/
     [SerializeField]
     private GameObject placementIndicator;
     [SerializeField]
@@ -52,10 +46,12 @@ public class ARPlacementManager : MonoBehaviour
     public GameObject selectedObject = null;
     private anchorPlaneLocation selectedObjectPlane = null;
     private GameObject newObjectPlaced = null;
-    private List<GameObject> objectPlacedList = new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> objectPlacedList = new List<GameObject>();
     [SerializeField]
     private int maxObjectPlacedCount = 5;
-    private int placedObjectCount = 0;
+    [HideInInspector]
+    public int placedObjectCount = 0;
     //private int currentNameNum = -1;
     [HideInInspector]
     public string savedAnchorName = null;
@@ -65,21 +61,19 @@ public class ARPlacementManager : MonoBehaviour
     [SerializeField]
     private GameObject startGroup;
     [SerializeField]
-    private GameObject sceneGroup;
+    public Button optionButton;
     [SerializeField]
-    private GameObject selectObjectButtons;
-    [SerializeField]
-    private Button togglePlaneDetectionButton;
-    [SerializeField]
-    private Button placeObjectButton;
+    public GameObject selectObjectButtons;
+    /*[SerializeField]
+    private Button togglePlaneDetectionButton;*/
+    public Button placeObjectButton;
     [SerializeField]
     private TMPro.TextMeshProUGUI objectLocationText;
     [SerializeField]
-    private TMPro.TextMeshProUGUI scanningText;
-    [SerializeField]
-    public GameObject nameInputGroup;
-    // Start is called before the first frame update
-    void Awake()
+    public TMPro.TextMeshProUGUI scanningText;
+    public bool updateUI = true; 
+// Start is called before the first frame update
+void Awake()
     {
         if (Instance == null)
         {
@@ -101,9 +95,18 @@ public class ARPlacementManager : MonoBehaviour
     {
         if (start)
         {
-            UpdatePlacementIndicator();
+            //Debug.Log("started");
+            //Debug.Log($"value is = {updateUI}");
+
+
             DragObject();
-            UpdateUI();
+            UpdatePlacementIndicator();
+
+            if (updateUI)
+            {
+                //Debug.Log("updating ui");
+                UpdateUI();
+            }
         }
         
     }
@@ -115,6 +118,7 @@ public class ARPlacementManager : MonoBehaviour
         {
             placeObjectButton.gameObject.SetActive(false);
             selectObjectButtons.SetActive(true);
+            scanningText.gameObject.SetActive(false);
 
             //changeObjectButtons.SetActive(false);
         }
@@ -143,8 +147,9 @@ public class ARPlacementManager : MonoBehaviour
         raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
 
         placementPoseIsValid = hits.Count > 0;
-        if (placementPoseIsValid && selectedObject == null)
+        if (placementPoseIsValid && selectedObject == null && updateUI)
         {
+
             placementIndicatorPose = hits[0].pose;
             hitPlane = arPlaneManager.GetPlane(hits[0].trackableId);
            
@@ -154,6 +159,7 @@ public class ARPlacementManager : MonoBehaviour
         }
         else
         {
+
             placementIndicator.SetActive(false);
         }
 
@@ -163,7 +169,7 @@ public class ARPlacementManager : MonoBehaviour
     {
         
         startGroup.gameObject.SetActive(false);
-        sceneGroup.gameObject.SetActive(true);
+        optionButton.gameObject.SetActive(true);
         scanningText.gameObject.SetActive(true);
         arPlaneManager.enabled = true;
         start = true;
@@ -196,18 +202,7 @@ public class ARPlacementManager : MonoBehaviour
             return;
         }
 
-    }
-
-    public void SaveButtonPress()
-    {        
-        nameInputGroup.gameObject.SetActive(true);
-        sceneGroup.gameObject.SetActive(false);
-        selectObjectButtons.SetActive(false);
-        scanningText.gameObject.SetActive(false);
-
-
-        return;               
-    }
+    }    
 
     public void PlaceAnchor()
     {
@@ -270,20 +265,6 @@ public class ARPlacementManager : MonoBehaviour
         //objectPlaced.transform.parent = transform;
     }
 
-    public void ClearObjects()
-    {
-        for (int i = 0; i < objectPlacedList.Count; i++)
-        {
-            Destroy(objectPlacedList[i].gameObject);
-        }
-        objectPlacedList = new List<GameObject>();
-        selectedObject = null;
-        placedObjectCount = 0;
-        //currentNameNum = -1;
-
-        Debug.Log("clearing scene");
-    }
-
     public void DeleteObject()
     {
         if (selectedObject != null)
@@ -308,22 +289,7 @@ public class ARPlacementManager : MonoBehaviour
             Debug.Log("currently in list: " + x.name);
         }
     }
-    public void ResetScene()
-    {
-        ClearObjects();
-        session.Reset();
-    }
-    public void TogglePlaneDetection()
-    {
-        arPlaneManager.enabled = !arPlaneManager.enabled;
-
-        foreach (ARPlane plane in arPlaneManager.trackables)
-        {
-            plane.gameObject.SetActive(arPlaneManager.enabled);
-        }
-        togglePlaneDetectionButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = arPlaneManager.enabled ? "Disable Plane Detection" : "Enable Plane Detection";
-        Debug.Log("toggling button to" + arPlaneManager.enabled.ToString());
-    }
+   
            
     void DragObject()
     {

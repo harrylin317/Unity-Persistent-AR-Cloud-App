@@ -25,11 +25,13 @@ public class ARCloudAnchorManager : MonoBehaviour
 
     private ARAnchorManager arAnchorManager = null;
 
-    private ARCloudAnchorHistory pendingHostAnchor = new ARCloudAnchorHistory(0);
+    [HideInInspector]
+    public ARCloudAnchorHistory pendingHostAnchor = new ARCloudAnchorHistory(0);
 
-    private ARCloudAnchorHistory currentResolvingAnchor = new ARCloudAnchorHistory(0);
+    [HideInInspector]
+    public ARCloudAnchorHistory currentResolvingAnchor = new ARCloudAnchorHistory(0);
 
-    private List<ARCloudAnchor> pendingCloudAnchors = new List<ARCloudAnchor>();
+    //private List<ARCloudAnchor> pendingCloudAnchors = new List<ARCloudAnchor>();
 
     private ARCloudAnchor cloudAnchor = null;
 
@@ -47,8 +49,8 @@ public class ARCloudAnchorManager : MonoBehaviour
 
     private float timer = 0f;
     private bool countTimer = false;
-
-    private string cloudAnchorsStorageKey = "SavedCloudAnchorID";
+    [HideInInspector]
+    public string cloudAnchorsStorageKey = "SavedCloudAnchorID";
     private int storageLimit = 10;
 
 
@@ -122,24 +124,14 @@ public class ARCloudAnchorManager : MonoBehaviour
         }
     }
 
-    public void ResolveAnchor()
+    public void ResolveAnchor(ARCloudAnchorHistory anchorToResolve)
     {
         if(currentResolvingAnchor.AnchorID == null)
         {
             Debug.Log("No ongoing resolves, starting to resolve");
-            ARCloudAnchorHistoryCollection dataCollection = LoadCloudAnchorHistory();
-            //if (PlayerPrefs.HasKey(cloudAnchorsStorageKey))
-            //{
-            //    Debug.Log($"has key {PlayerPrefs.GetString(cloudAnchorsStorageKey)}");
-            //    anchorIdToResolve = PlayerPrefs.GetString(cloudAnchorsStorageKey);
-            //}
-            //else
-            //{
-            //    Debug.Log("No saved cloud anchor found, aborting...");
-            //    return;
-
-            //}
-            currentResolvingAnchor = dataCollection.Collection[0];
+            //ARCloudAnchorHistoryCollection dataCollection = LoadCloudAnchorHistory();
+            //currentResolvingAnchor = dataCollection.Collection[0];
+            currentResolvingAnchor = anchorToResolve;
             Debug.Log("Resolving data: " + currentResolvingAnchor);
             anchorIdToResolve = currentResolvingAnchor.AnchorID;
 
@@ -193,7 +185,7 @@ public class ARCloudAnchorManager : MonoBehaviour
             Debug.Log($"Successfully hosted anchor: {anchorIdToResolve}");
             Debug.Log($"Saved to PlayerPref: {PlayerPrefs.GetString(cloudAnchorsStorageKey)}");
 
-
+            Destroy(pendingHostAnchor.arAnchor);
             pendingHostAnchor = new ARCloudAnchorHistory(0);
 
 
@@ -236,13 +228,9 @@ public class ARCloudAnchorManager : MonoBehaviour
         }
     }
 
-    public void ClearPlayerPrefsHistory()
-    {
-        PlayerPrefs.DeleteAll();
-        Debug.Log("Cleared all PlayerPrefs");
-    }
+    
 
-    private ARCloudAnchorHistoryCollection LoadCloudAnchorHistory()
+    public ARCloudAnchorHistoryCollection LoadCloudAnchorHistory()
     {
         if (PlayerPrefs.HasKey(cloudAnchorsStorageKey))
         {
@@ -265,7 +253,7 @@ public class ARCloudAnchorManager : MonoBehaviour
         }
 
     }
-    private void SaveCloudAnchorHistory(ARCloudAnchorHistory data)
+    public void SaveCloudAnchorHistory(ARCloudAnchorHistory data)
     {
         var history = LoadCloudAnchorHistory();
 
@@ -283,6 +271,8 @@ public class ARCloudAnchorManager : MonoBehaviour
 
         PlayerPrefs.SetString(cloudAnchorsStorageKey, JsonUtility.ToJson(history));
     }
+
+    
 
     void Update()
     {

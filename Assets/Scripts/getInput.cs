@@ -7,9 +7,12 @@ public class getInput : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField inputField;
-
+    [SerializeField]
+    private Button optionButton;
     private string currentInputText = null;
 
+
+    
 
     public void ReadStringInput()
     {
@@ -19,10 +22,42 @@ public class getInput : MonoBehaviour
 
     public void SaveName()
     {
+        if(ARCloudAnchorManager.Instance.pendingHostAnchor.arAnchor != null)
+        {
+            Debug.Log("A object is currently being hosted, please wait till it finish");
+            return;
+
+        }
         Debug.Log($"Saving name: {currentInputText}");
         ARPlacementManager.Instance.savedAnchorName = currentInputText;
         inputField.text = "";
-        ARPlacementManager.Instance.nameInputGroup.gameObject.SetActive(false);
+        ARPlacementManager.Instance.updateUI = true;
+        gameObject.SetActive(false);
+        optionButton.gameObject.SetActive(true);
+
         ARPlacementManager.Instance.PlaceAnchor();
+    }
+    public void SaveLocationButtonPress()
+    {
+        Debug.Log("save object location button pressed");
+
+        ARPlacementManager.Instance.updateUI = false;
+        gameObject.SetActive(true);
+        optionButton.gameObject.SetActive(false);
+        ARPlacementManager.Instance.selectObjectButtons.SetActive(false);
+        ARPlacementManager.Instance.scanningText.gameObject.SetActive(false);
+        ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(false);
+
+    }
+    public void SaveNameMenuExitButtonPressed()
+    {
+        Debug.Log("closing save name menu");
+        ARPlacementManager.Instance.updateUI = true;
+        gameObject.SetActive(false);
+        optionButton.gameObject.SetActive(true);
+        ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
+        ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
+        ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
+
     }
 }
