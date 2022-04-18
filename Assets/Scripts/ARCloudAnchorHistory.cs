@@ -13,7 +13,10 @@ public struct ARCloudAnchorHistory
     public string SerializedTime;
     public int PrefabIndex;
     public string ObjectName;
-    public string ObjectText;
+    public string TitleText;
+    public string BodyText;
+    public float TitleTextFontSize;
+    public float BodyTextFontSize;
     public ARAnchor arAnchor;
     public Vector3 ObjectScale;
 
@@ -25,20 +28,27 @@ public struct ARCloudAnchorHistory
         SerializedTime = null;
         PrefabIndex = 0;
         ObjectName = null;
-        ObjectText = null;
+        TitleText = null;
+        BodyText = null;
+        TitleTextFontSize = 0;
+        BodyTextFontSize = 0;
         arAnchor = null;
         ObjectScale = Vector3.zero;
     }
 
     //used when first queing anchor 
-    public ARCloudAnchorHistory(string anchorName, int index, string objectName, ARAnchor anchor, Vector3 scale)
+    public ARCloudAnchorHistory(string anchorName, int index, string objectName, ARAnchor anchor, 
+        string titleText, string bodyText, float titleTextFontSize, float bodyTextFontSize, Vector3 scale)
     {
         AnchorName = anchorName;
         AnchorID = null;
         SerializedTime = null;
         PrefabIndex = index;
         ObjectName = objectName;
-        ObjectText = null;
+        TitleText = titleText;
+        BodyText = bodyText;
+        TitleTextFontSize = titleTextFontSize;
+        BodyTextFontSize = bodyTextFontSize;
         arAnchor = anchor;
         ObjectScale = scale;
     }
@@ -50,20 +60,29 @@ public struct ARCloudAnchorHistory
         SerializedTime = time.ToString();
         PrefabIndex = index;
         ObjectName = objectName;
-        ObjectText = null;
+        TitleText = null;
+        BodyText = null;
+        TitleTextFontSize = 0;
+        BodyTextFontSize = 0;
         arAnchor = null;
         ObjectScale = scale;
 
     }
 
-    public ARCloudAnchorHistory(string anchorName, string id, DateTime time, int index, string objectName, string text, Vector3 scale)
+    public ARCloudAnchorHistory(string anchorName, string id, DateTime time, int index, 
+        string objectName, string titleText, string bodyText, float titleTextFontSize, float bodyTextFontSize, Vector3 scale)
     {
         AnchorName = anchorName;
         AnchorID = id;
         SerializedTime = time.ToString();
         PrefabIndex = index;
         ObjectName = objectName;
-        ObjectText = text;
+
+        TitleText = titleText;
+        BodyText = bodyText;
+        TitleTextFontSize = titleTextFontSize;
+        BodyTextFontSize = bodyTextFontSize;
+
         arAnchor = null;
         ObjectScale = scale;
 

@@ -64,14 +64,13 @@ public class selectSaves : MonoBehaviour
     // Update is called once per frame
     public void RecreateObjectButtonPressed()
     {
-        if(ARCloudAnchorManager.Instance.currentResolvingAnchor.AnchorID != null)
+        if(!string.IsNullOrEmpty(ARCloudAnchorManager.Instance.currentResolvingAnchor.AnchorID))
         {
             Debug.Log("A object is currently being resolved, please wait till it finish");
+            Debug.Log($"currentResolvingAnchor: {ARCloudAnchorManager.Instance.currentResolvingAnchor}");
             return;
         }
-
-
-        if (noSavedObject)
+        else if (noSavedObject)
         {
             Debug.Log("no save object selected");
             return;
@@ -84,16 +83,17 @@ public class selectSaves : MonoBehaviour
             int selectedIndex = dropDown.value;
             ARCloudAnchorHistory anchorToResolve = dataList.Collection[selectedIndex];
             ARCloudAnchorManager.Instance.ResolveAnchor(anchorToResolve);
-            
+            /*itemsList = new List<string>();
+            dataList = new ARCloudAnchorHistoryCollection();*/
+            ARPlacementManager.Instance.updateUI = true;
+            gameObject.SetActive(false);
+            optionButton.gameObject.SetActive(true);
+            ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
+            ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
+            ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
+
         }
-        /*itemsList = new List<string>();
-        dataList = new ARCloudAnchorHistoryCollection();*/
-        ARPlacementManager.Instance.updateUI = true;
-        gameObject.SetActive(false);
-        optionButton.gameObject.SetActive(true);
-        ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
-        ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
-        ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
+        
 
 
     }

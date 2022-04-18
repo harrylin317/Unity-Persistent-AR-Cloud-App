@@ -25,8 +25,6 @@ public class ARPlacementManager : MonoBehaviour
     private ARPlane hitPlane;
 
 
-    //placing and selecting object
-    private GameObject objectPlaced = null;
 
     //placement indicators
     private bool placementPoseIsValid = false;
@@ -41,7 +39,7 @@ public class ARPlacementManager : MonoBehaviour
     private GameObject placementIndicator;
     [SerializeField]
     private List<GameObject> objectToPlaceList = new List<GameObject>();
-    private int objectToPlaceIndex = 1;
+    private int objectToPlaceIndex = 2;
     [HideInInspector]
     public GameObject selectedObject = null;
     private anchorPlaneLocation selectedObjectPlane = null;
@@ -55,6 +53,8 @@ public class ARPlacementManager : MonoBehaviour
     //private int currentNameNum = -1;
     [HideInInspector]
     public string savedAnchorName = null;
+    [HideInInspector]
+    public bool editingText = false;
 
     [Header("UI")]
     //UI
@@ -144,7 +144,7 @@ void Awake()
     void UpdatePlacementIndicator()
     {
         Vector2 screenPosition = Camera.main.ViewportToScreenPoint(new Vector2(0.5f, 0.5f));
-        raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes);
+        raycastManager.Raycast(screenPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon);
 
         placementPoseIsValid = hits.Count > 0;
         if (placementPoseIsValid && selectedObject == null && updateUI)
@@ -228,9 +228,13 @@ void Awake()
             Debug.Log("pased success, value is: " + prefabIndexInt);
 
             Vector3 scale = selectedObject.transform.localScale;
-            //InputAnchorName();
 
-            ARCloudAnchorHistory queueARAnchor = new ARCloudAnchorHistory(savedAnchorName, prefabIndexInt, objectName, anchor, scale);
+            TextMeshPro titleText = selectedObject.transform.GetChild(0).gameObject.GetComponentInChildren<TextMeshPro>();
+            TextMeshPro bodyText = selectedObject.transform.GetChild(1).gameObject.GetComponentInChildren<TextMeshPro>();
+
+
+            ARCloudAnchorHistory queueARAnchor = new ARCloudAnchorHistory(savedAnchorName, prefabIndexInt, objectName, anchor, 
+                titleText.text, bodyText.text, titleText.fontSize, bodyText.fontSize, scale);
             ARCloudAnchorManager.Instance.QueueAnchor(queueARAnchor);
             ARCloudAnchorManager.Instance.HostAnchor();
             savedAnchorName = null;
@@ -249,7 +253,15 @@ void Awake()
         newObjectPlaced.transform.localScale = anchorData.ObjectScale;
         newObjectPlaced.GetComponent<Outline>().enabled = false;
 
-        if (raycastManager.Raycast(resolvedAnchorTransform.position, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes))
+        TextMeshPro titleText = newObjectPlaced.transform.GetChild(0).gameObject.GetComponentInChildren<TextMeshPro>();
+        TextMeshPro bodyText = newObjectPlaced.transform.GetChild(1).gameObject.GetComponentInChildren<TextMeshPro>();
+
+        titleText.text = anchorData.TitleText;
+        bodyText.text = anchorData.BodyText;
+        titleText.fontSize = anchorData.TitleTextFontSize;
+        bodyText.fontSize = anchorData.BodyTextFontSize;
+
+        if (raycastManager.Raycast(resolvedAnchorTransform.position, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
         {
             hitPlane = arPlaneManager.GetPlane(hits[0].trackableId);
         }
@@ -293,6 +305,11 @@ void Awake()
            
     void DragObject()
     {
+        if (editingText)
+        {
+            return;
+        }
+
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
@@ -300,7 +317,11 @@ void Awake()
 
             //prevent touch object under the UI
             if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+            {
+                //Debug.Log("touching UI");
                 return;
+            }
+                
 
 
             if (touch.phase == TouchPhase.Began)
@@ -308,8 +329,12 @@ void Awake()
 
                 Ray ray = Camera.main.ScreenPointToRay(touch.position);
                 RaycastHit hitObject;
+                //Debug.Log("shooting ray");
+
                 if (Physics.Raycast(ray, out hitObject))
                 {
+                    //Debug.Log($"hit object{hitObject.collider.gameObject.name}");
+
                     if (hitObject.collider.gameObject.tag == "Spawnable")
                     {
 
@@ -318,7 +343,6 @@ void Awake()
                         {
                             if (objectPlacedList[i].name == hitObject.collider.gameObject.name)
                             {
-
                                 //switch to the other object if an object is previously selected
                                 if (selectedObject != null)
                                 {
@@ -366,7 +390,7 @@ void Awake()
             //if (onTouchHold && selectedObject != null && touchingObject)
             if (onTouchHold && selectedObject != null)
             {
-                if (raycastManager.Raycast(touchPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.Planes))
+                if (raycastManager.Raycast(touchPosition, hits, UnityEngine.XR.ARSubsystems.TrackableType.PlaneWithinPolygon))
                 {
                     Pose hitPose = hits[0].pose;
                     hitPlane = arPlaneManager.GetPlane(hits[0].trackableId);

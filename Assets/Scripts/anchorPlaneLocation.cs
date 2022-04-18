@@ -7,5 +7,5 @@ public class anchorPlaneLocation : MonoBehaviour
 {
     // Start is called before the first frame update
     public ARPlane anchorPlane = null;
-    public bool testVariable = false;
+    //public bool testVariable = false;
 }

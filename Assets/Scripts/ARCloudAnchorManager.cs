@@ -126,7 +126,7 @@ public class ARCloudAnchorManager : MonoBehaviour
 
     public void ResolveAnchor(ARCloudAnchorHistory anchorToResolve)
     {
-        if(currentResolvingAnchor.AnchorID == null)
+        if(string.IsNullOrEmpty(currentResolvingAnchor.AnchorID))
         {
             Debug.Log("No ongoing resolves, starting to resolve");
             //ARCloudAnchorHistoryCollection dataCollection = LoadCloudAnchorHistory();
@@ -177,7 +177,8 @@ public class ARCloudAnchorManager : MonoBehaviour
             DateTime creationTime = DateTime.Now;
 
             //ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory("CloudAnchor" + count, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, pendingHostAnchor.ObjectScale);
-            ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory(pendingHostAnchor.AnchorName, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, pendingHostAnchor.ObjectScale);
+            ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory(pendingHostAnchor.AnchorName, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, 
+                pendingHostAnchor.TitleText, pendingHostAnchor.BodyText, pendingHostAnchor.TitleTextFontSize, pendingHostAnchor.BodyTextFontSize, pendingHostAnchor.ObjectScale);
             SaveCloudAnchorHistory(saveAnchorHistory);
             //PlayerPrefs.SetString(cloudAnchorsStorageKey, anchorIdToResolve);
             //PlayerPrefs.Save();
