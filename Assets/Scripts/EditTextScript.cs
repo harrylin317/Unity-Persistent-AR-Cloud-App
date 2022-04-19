@@ -9,6 +9,8 @@ public class EditTextScript : MonoBehaviour
     [SerializeField]
     private TMP_InputField inputField;
     [SerializeField]
+    private GameObject optionGroup;
+    [SerializeField]
     private Button optionButton;
     private TMPro.TextMeshPro selectedText = null;
     private TMPro.TextMeshPro titleText = null;
@@ -54,7 +56,7 @@ public class EditTextScript : MonoBehaviour
         inputField.text = selectedText.text;
     }
 
-    public void FinishEditButtonPressed()
+    public void EditTextExitButtonPressed()
     {
         exitEditing = true;
         inputField.text = "";
@@ -84,4 +86,6 @@ public class EditTextScript : MonoBehaviour
         }
         Debug.Log($"Size decreased to {selectedText.fontSize}");
     }
+
+    
 }

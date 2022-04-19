@@ -32,7 +32,7 @@ public class ToggleOptions : MonoBehaviour
         {
             plane.gameObject.SetActive(ARPlacementManager.Instance.arPlaneManager.enabled);
         }
-        togglePlaneDetectionButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = ARPlacementManager.Instance.arPlaneManager.enabled ? "Disable Plane Detection" : "Enable Plane Detection";
+        togglePlaneDetectionButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = ARPlacementManager.Instance.arPlaneManager.enabled ? "Hide Planes" : "Show Planes";
         Debug.Log("toggling button to" + ARPlacementManager.Instance.arPlaneManager.enabled.ToString());
     }
     public void ResetScene()

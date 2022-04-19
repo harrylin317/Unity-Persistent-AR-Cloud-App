@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class getInput : MonoBehaviour
 {
     [SerializeField]
+    private TextMeshProUGUI warningText;
+    [SerializeField]
     private TMP_InputField inputField;
     [SerializeField]
     private Button optionButton;
@@ -24,6 +26,8 @@ public class getInput : MonoBehaviour
     {
         if(ARCloudAnchorManager.Instance.pendingHostAnchor.arAnchor != null)
         {
+            warningText.gameObject.SetActive(true);
+            Invoke("SetFalse", 3.0f);
             Debug.Log("A object is currently being hosted, please wait till it finish");
             return;
 
@@ -58,6 +62,13 @@ public class getInput : MonoBehaviour
         ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
         ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
         ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
+
+    }
+
+    private void SetFalse()
+    {
+
+        warningText.gameObject.SetActive(false);
 
     }
 }

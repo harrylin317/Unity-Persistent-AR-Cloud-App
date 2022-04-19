@@ -39,7 +39,7 @@ public class ARPlacementManager : MonoBehaviour
     private GameObject placementIndicator;
     [SerializeField]
     private List<GameObject> objectToPlaceList = new List<GameObject>();
-    private int objectToPlaceIndex = 2;
+    public int objectToPlaceIndex = 0;
     [HideInInspector]
     public GameObject selectedObject = null;
     private anchorPlaneLocation selectedObjectPlane = null;
@@ -64,8 +64,10 @@ public class ARPlacementManager : MonoBehaviour
     public Button optionButton;
     [SerializeField]
     public GameObject selectObjectButtons;
-    /*[SerializeField]
-    private Button togglePlaneDetectionButton;*/
+    [SerializeField]
+    public GameObject rotateObjectButtons;
+    [SerializeField]
+    public GameObject scaleObjectButtons;
     public Button placeObjectButton;
     [SerializeField]
     private TMPro.TextMeshProUGUI objectLocationText;
@@ -191,8 +193,8 @@ void Awake()
             newObjectPlaced.name = "PrefabIndex-" + objectToPlaceIndex + "-" + objectToPlaceList[objectToPlaceIndex].name + "-" + placedObjectCount;
             objectPlacedList.Add(newObjectPlaced);
 
-            objectLocationText.gameObject.SetActive(true);
-            objectLocationText.text = $"Object placed at:\n {placementIndicatorPose.position} , {placementIndicatorPose.rotation}";
+            /*objectLocationText.gameObject.SetActive(true);
+            objectLocationText.text = $"Object placed at:\n {placementIndicatorPose.position} , {placementIndicatorPose.rotation}";*/
 
             Debug.Log("placed object " + newObjectPlaced.name);
         }
@@ -232,6 +234,8 @@ void Awake()
             TextMeshPro titleText = selectedObject.transform.GetChild(0).gameObject.GetComponentInChildren<TextMeshPro>();
             TextMeshPro bodyText = selectedObject.transform.GetChild(1).gameObject.GetComponentInChildren<TextMeshPro>();
 
+            objectLocationText.gameObject.SetActive(true);
+            objectLocationText.text = $"Saving object with location & rotation of:\n {selectedObject.transform.position} , {selectedObject.transform.rotation}";
 
             ARCloudAnchorHistory queueARAnchor = new ARCloudAnchorHistory(savedAnchorName, prefabIndexInt, objectName, anchor, 
                 titleText.text, bodyText.text, titleText.fontSize, bodyText.fontSize, scale);
@@ -301,8 +305,26 @@ void Awake()
             Debug.Log("currently in list: " + x.name);
         }
     }
-   
-           
+
+    public void ScaleButtonPressed()
+    {
+        if (rotateObjectButtons.activeSelf)
+        {
+            rotateObjectButtons.SetActive(false);
+        }
+        scaleObjectButtons.SetActive(!scaleObjectButtons.activeSelf);
+
+    }
+
+    public void RotateButtonPressed()
+    {
+        if (scaleObjectButtons.activeSelf)
+        {
+            scaleObjectButtons.SetActive(false);
+        }
+        rotateObjectButtons.SetActive(!rotateObjectButtons.activeSelf);
+
+    }
     void DragObject()
     {
         if (editingText)
@@ -337,7 +359,10 @@ void Awake()
 
                     if (hitObject.collider.gameObject.tag == "Spawnable")
                     {
+                        //reset the buttons if it was previously on
 
+                        rotateObjectButtons.SetActive(false);
+                        scaleObjectButtons.SetActive(false);
                         //select object
                         for (int i = 0; i < objectPlacedList.Count; i++)
                         {
@@ -346,6 +371,7 @@ void Awake()
                                 //switch to the other object if an object is previously selected
                                 if (selectedObject != null)
                                 {
+                                    
                                     selectedObject.GetComponent<Outline>().enabled = false;
                                 }
                                 selectedObject = objectPlacedList[i];
@@ -397,8 +423,8 @@ void Awake()
                     selectedObjectPlane.anchorPlane = hitPlane;
                     selectedObject.transform.position = hitPose.position;
                     //selectedObject.transform.rotation = hitPose.rotation;
-                    objectLocationText.gameObject.SetActive(true);
-                    objectLocationText.text = $"Object moved to:\n {selectedObject.transform.position} , {selectedObject.transform.rotation}";
+                    /*objectLocationText.gameObject.SetActive(true);
+                    objectLocationText.text = $"Object moved to:\n {selectedObject.transform.position} , {selectedObject.transform.rotation}";*/
                 }
             }
         }

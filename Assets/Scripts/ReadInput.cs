@@ -131,11 +131,12 @@ public class ReadInput : MonoBehaviour
         Debug.Log($"get title: {bodyText.text}");
     }
 
-    //public void EditTitleButtonPressed()
-    //{
-    //    selectedText = titleText;
-    //    inputField.gameObject.SetActive(true);
-    //}
+    public void EditTitleButtonPressed(Button button)
+    {
+        Debug.Log($"Button pressed: {button.name}");
+        selectedText = titleText;
+        inputField.gameObject.SetActive(true);
+    }
     //public void EditBodyButtonPressed()
     //{
     //    selectedText = bodyText;
@@ -148,7 +149,7 @@ public class ReadInput : MonoBehaviour
     //}
     //public void FontSizeDecrease()
     //{
-        
+
     //    selectedText.fontSize -= 0.01f;
     //    if(selectedText.fontSize < 0)
     //    {

@@ -28,12 +28,12 @@ public class ButtonHeldEvent : MonoBehaviour
                 Debug.Log("scaling down");
                 ARPlacementManager.Instance.selectedObject.transform.localScale -= scaleValue;
             }
-            else if (currentButtonName == "RotateArrowRight")
+            else if (currentButtonName == "RotateArrowLeft")
             {
                 Debug.Log("rotating right");
                 ARPlacementManager.Instance.selectedObject.transform.Rotate(new Vector3(0, rotationValue, 0), Space.Self);
             }
-            else if (currentButtonName == "RotateArrowLeft")
+            else if (currentButtonName == "RotateArrowRight")
             {
                 Debug.Log("rotating left");
                 ARPlacementManager.Instance.selectedObject.transform.Rotate(new Vector3(0, -rotationValue, 0), Space.Self);

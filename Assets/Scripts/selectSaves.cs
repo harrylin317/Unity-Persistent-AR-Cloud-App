@@ -10,7 +10,9 @@ public class selectSaves : MonoBehaviour
     [SerializeField]
     private TMP_Dropdown dropDown;
     [SerializeField]
-    private TextMeshProUGUI warningText;
+    private TextMeshProUGUI noSaveWarningText;
+    [SerializeField]
+    private TextMeshProUGUI recreatingWarningText;
     [SerializeField]
     private GameObject optionGroup;
     [SerializeField]
@@ -23,9 +25,9 @@ public class selectSaves : MonoBehaviour
     public void ShowSelectSaveMenu()
     {
         Debug.Log("Opening save menu");
-        ARPlacementManager.Instance.updateUI = false;
         gameObject.SetActive(true);
         optionGroup.SetActive(false);
+        ARPlacementManager.Instance.updateUI = false;
         ARPlacementManager.Instance.selectObjectButtons.SetActive(false);
         ARPlacementManager.Instance.scanningText.gameObject.SetActive(false);
         ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(false);
@@ -40,7 +42,7 @@ public class selectSaves : MonoBehaviour
         {
             Debug.Log("data exist, loading history");
 
-            warningText.gameObject.SetActive(false);
+            noSaveWarningText.gameObject.SetActive(false);
 
             foreach (var data in dataList.Collection)
             {
@@ -54,7 +56,7 @@ public class selectSaves : MonoBehaviour
         {
             Debug.Log("no history found, empty dropdown");
             noSavedObject = true;
-            warningText.gameObject.SetActive(true);
+            noSaveWarningText.gameObject.SetActive(true);
         }
         dropDown.RefreshShownValue();
 
@@ -68,6 +70,8 @@ public class selectSaves : MonoBehaviour
         {
             Debug.Log("A object is currently being resolved, please wait till it finish");
             Debug.Log($"currentResolvingAnchor: {ARCloudAnchorManager.Instance.currentResolvingAnchor}");
+            recreatingWarningText.gameObject.SetActive(true);
+            Invoke("SetFalse", 3.0f);
             return;
         }
         else if (noSavedObject)
@@ -85,9 +89,9 @@ public class selectSaves : MonoBehaviour
             ARCloudAnchorManager.Instance.ResolveAnchor(anchorToResolve);
             /*itemsList = new List<string>();
             dataList = new ARCloudAnchorHistoryCollection();*/
-            ARPlacementManager.Instance.updateUI = true;
             gameObject.SetActive(false);
             optionButton.gameObject.SetActive(true);
+            ARPlacementManager.Instance.updateUI = true;
             ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
             ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
             ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
@@ -126,7 +130,7 @@ public class selectSaves : MonoBehaviour
             {
                 Debug.Log("removed last save, no more save in history");
                 noSavedObject = true;
-                warningText.gameObject.SetActive(true);
+                noSaveWarningText.gameObject.SetActive(true);
             }
 
         }
@@ -144,6 +148,12 @@ public class selectSaves : MonoBehaviour
         /*ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
         ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
         ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);*/
+
+    }
+    private void SetFalse()
+    {
+
+        recreatingWarningText.gameObject.SetActive(false);
 
     }
 }
