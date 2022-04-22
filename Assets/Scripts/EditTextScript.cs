@@ -24,7 +24,7 @@ public class EditTextScript : MonoBehaviour
         ARPlacementManager.Instance.updateUI = false;
         ARPlacementManager.Instance.editingText = true;
         ARPlacementManager.Instance.selectObjectButtons.SetActive(false);
-        ARPlacementManager.Instance.scanningText.gameObject.SetActive(false);
+        ARPlacementManager.Instance.scanningPlaneTextBox.gameObject.SetActive(false);
         ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(false);
 
         titleText = ARPlacementManager.Instance.selectedObject.transform.GetChild(0).gameObject.GetComponentInChildren<TextMeshPro>();
@@ -68,7 +68,7 @@ public class EditTextScript : MonoBehaviour
         ARPlacementManager.Instance.updateUI = true;
         ARPlacementManager.Instance.editingText = false;
         ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
-        ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
+        ARPlacementManager.Instance.scanningPlaneTextBox.gameObject.SetActive(true);
         ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
     }
 

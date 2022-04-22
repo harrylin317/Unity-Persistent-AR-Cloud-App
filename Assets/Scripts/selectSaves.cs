@@ -21,18 +21,29 @@ public class selectSaves : MonoBehaviour
     private List<string> itemsList = new List<string>();
     private ARCloudAnchorHistoryCollection dataList = new ARCloudAnchorHistoryCollection();
     private bool noSavedObject = true;
+    private int selectedIndex;
 
-    public void ShowSelectSaveMenu()
+    public void SelectSaveMenuButtonPressed()
     {
         Debug.Log("Opening save menu");
         gameObject.SetActive(true);
         optionGroup.SetActive(false);
         ARPlacementManager.Instance.updateUI = false;
         ARPlacementManager.Instance.selectObjectButtons.SetActive(false);
-        ARPlacementManager.Instance.scanningText.gameObject.SetActive(false);
+        ARPlacementManager.Instance.scanningPlaneTextBox.gameObject.SetActive(false);
         ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(false);
 
-        dataList = ARCloudAnchorManager.Instance.LoadCloudAnchorHistory();
+        DatabaseManager.Instance.LoadHistory(LoadSaveMenu);
+
+
+        //dataList = ARCloudAnchorManager.Instance.LoadCloudAnchorHistory();
+        
+
+
+    }
+    private void LoadSaveMenu()
+    {
+        dataList = DatabaseManager.Instance.GetLoadedHistory();
         Debug.Log($"got history: {dataList}");
 
         dropDown.ClearOptions();
@@ -59,10 +70,7 @@ public class selectSaves : MonoBehaviour
             noSaveWarningText.gameObject.SetActive(true);
         }
         dropDown.RefreshShownValue();
-
-
     }
-
     // Update is called once per frame
     public void RecreateObjectButtonPressed()
     {
@@ -84,7 +92,7 @@ public class selectSaves : MonoBehaviour
             Debug.Log("loading saved object to resolve");
 
             Debug.Log(dropDown.value);
-            int selectedIndex = dropDown.value;
+            selectedIndex = dropDown.value;
             ARCloudAnchorHistory anchorToResolve = dataList.Collection[selectedIndex];
             ARCloudAnchorManager.Instance.ResolveAnchor(anchorToResolve);
             /*itemsList = new List<string>();
@@ -93,7 +101,7 @@ public class selectSaves : MonoBehaviour
             optionButton.gameObject.SetActive(true);
             ARPlacementManager.Instance.updateUI = true;
             ARPlacementManager.Instance.selectObjectButtons.SetActive(true);
-            ARPlacementManager.Instance.scanningText.gameObject.SetActive(true);
+            ARPlacementManager.Instance.scanningPlaneTextBox.gameObject.SetActive(true);
             ARPlacementManager.Instance.placeObjectButton.gameObject.SetActive(true);
 
         }
@@ -113,30 +121,39 @@ public class selectSaves : MonoBehaviour
         else
         {
 
-            int selectedIndex = dropDown.value;
+            selectedIndex = dropDown.value;
             Debug.Log($"deleting save: {dataList.Collection[selectedIndex].AnchorName}");
+            DatabaseManager.Instance.DeleteHistory(dataList.Collection[selectedIndex].AnchorName, DeleteComplete);           
 
-            dropDown.options.RemoveAt(selectedIndex);
-            //itemsList.RemoveAt(selectedIndex);
-            dataList.Collection.RemoveAt(selectedIndex);
-            dropDown.RefreshShownValue();
-            PlayerPrefs.SetString(ARCloudAnchorManager.Instance.cloudAnchorsStorageKey, JsonUtility.ToJson(dataList));
-
-            if(dataList.Collection.Count > 0)
-            {               
-                noSavedObject = false;
-            }
-            else
-            {
-                Debug.Log("removed last save, no more save in history");
-                noSavedObject = true;
-                noSaveWarningText.gameObject.SetActive(true);
-            }
+            //PlayerPrefs.SetString(ARCloudAnchorManager.Instance.cloudAnchorsStorageKey, JsonUtility.ToJson(dataList));            
 
         }
 
 
     }
+
+    private void DeleteComplete()
+    {
+        Debug.Log("deletion complete, refreshing list");
+
+
+        dropDown.options.RemoveAt(selectedIndex);
+        //itemsList.RemoveAt(selectedIndex);
+        dataList.Collection.RemoveAt(selectedIndex);
+        dropDown.RefreshShownValue();
+
+        if (dataList.Collection.Count > 0)
+        {
+            noSavedObject = false;
+        }
+        else
+        {
+            Debug.Log("removed last save, no more save in history");
+            noSavedObject = true;
+            noSaveWarningText.gameObject.SetActive(true);
+        }
+    }
+
     public void SelectSaveMenuExitButtonPressed()
     {
         Debug.Log("closing select save menu");

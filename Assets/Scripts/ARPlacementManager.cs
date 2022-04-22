@@ -60,22 +60,25 @@ public class ARPlacementManager : MonoBehaviour
     //UI
     [SerializeField]
     private GameObject startGroup;
-    [SerializeField]
     public Button optionButton;
-    [SerializeField]
     public GameObject selectObjectButtons;
-    [SerializeField]
     public GameObject rotateObjectButtons;
-    [SerializeField]
     public GameObject scaleObjectButtons;
     public Button placeObjectButton;
+
+    [SerializeField]
+    private Image objectLocationTextBox;
     [SerializeField]
     private TMPro.TextMeshProUGUI objectLocationText;
-    [SerializeField]
-    public TMPro.TextMeshProUGUI scanningText;
+    
+
+    public Image scanningPlaneTextBox;
+    
+    public Image mappingQualityTextBox;
+    public TMPro.TextMeshProUGUI mappingQualityText;
     public bool updateUI = true; 
 // Start is called before the first frame update
-void Awake()
+    void Awake()
     {
         if (Instance == null)
         {
@@ -120,7 +123,7 @@ void Awake()
         {
             placeObjectButton.gameObject.SetActive(false);
             selectObjectButtons.SetActive(true);
-            scanningText.gameObject.SetActive(false);
+            scanningPlaneTextBox.gameObject.SetActive(false);
 
             //changeObjectButtons.SetActive(false);
         }
@@ -128,14 +131,14 @@ void Awake()
         {
             if (placementPoseIsValid)
             {
-                scanningText.gameObject.SetActive(false);
+                scanningPlaneTextBox.gameObject.SetActive(false);
                 placeObjectButton.gameObject.SetActive(true);
                 //changeObjectButtons.SetActive(true);
 
             }
             else
             {
-                scanningText.gameObject.SetActive(true);
+                scanningPlaneTextBox.gameObject.SetActive(true);
                 placeObjectButton.gameObject.SetActive(false);
                 //changeObjectButtons.SetActive(false);
             }
@@ -172,7 +175,8 @@ void Awake()
         
         startGroup.gameObject.SetActive(false);
         optionButton.gameObject.SetActive(true);
-        scanningText.gameObject.SetActive(true);
+        scanningPlaneTextBox.gameObject.SetActive(true);
+        mappingQualityTextBox.gameObject.SetActive(true);
         arPlaneManager.enabled = true;
         start = true;
 
@@ -234,8 +238,8 @@ void Awake()
             TextMeshPro titleText = selectedObject.transform.GetChild(0).gameObject.GetComponentInChildren<TextMeshPro>();
             TextMeshPro bodyText = selectedObject.transform.GetChild(1).gameObject.GetComponentInChildren<TextMeshPro>();
 
-            objectLocationText.gameObject.SetActive(true);
-            objectLocationText.text = $"Saving object with location & rotation of:\n {selectedObject.transform.position} , {selectedObject.transform.rotation}";
+            objectLocationTextBox.gameObject.SetActive(true);
+            objectLocationText.text = $"Saving object with Pose of:\n {selectedObject.transform.position} , {selectedObject.transform.rotation}";
 
             ARCloudAnchorHistory queueARAnchor = new ARCloudAnchorHistory(savedAnchorName, prefabIndexInt, objectName, anchor, 
                 titleText.text, bodyText.text, titleText.fontSize, bodyText.fontSize, scale);
@@ -276,8 +280,8 @@ void Awake()
 
 
         Debug.Log($"instantiate at {resolvedAnchorTransform.position} , {resolvedAnchorTransform.rotation}");
-        objectLocationText.gameObject.SetActive(true);
-        objectLocationText.text = $"Object {newObjectPlaced.name} re-created at at:\n {resolvedAnchorTransform.position} , {resolvedAnchorTransform.rotation}";
+        objectLocationTextBox.gameObject.SetActive(true);
+        objectLocationText.text = $"Object re-created at at:\n {resolvedAnchorTransform.position} , {resolvedAnchorTransform.rotation}";
         //objectPlaced.transform.parent = transform;
     }
 

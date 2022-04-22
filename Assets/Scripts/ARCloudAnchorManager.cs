@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Google.XR.ARCoreExtensions;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.XR.ARFoundation;
 using TMPro;
@@ -20,6 +21,8 @@ public class ARCloudAnchorManager : MonoBehaviour
     [SerializeField]
     private float resolveAnchorPassedTimeout = 10.0f;
 
+    [SerializeField]
+    private Image progressTextBox;
     [SerializeField]
     private TMPro.TextMeshProUGUI progressText;
 
@@ -47,6 +50,7 @@ public class ARCloudAnchorManager : MonoBehaviour
 
     FeatureMapQuality quality;
 
+
     private float timer = 0f;
     private bool countTimer = false;
     [HideInInspector]
@@ -67,6 +71,37 @@ public class ARCloudAnchorManager : MonoBehaviour
         }
         cloudAnchorCreatedEvent = new AnchorCreatedEvent();
         cloudAnchorCreatedEvent.AddListener((t, d) => ARPlacementManager.Instance.ReCreatePlacement(t, d));
+    }
+
+    private void Start()
+    {
+        
+        InvokeRepeating("UpdateMappingQuality", 1.0f, 1.0f);
+
+    }
+    private void UpdateMappingQuality()
+    {
+
+
+        //Debug.Log("Updating mapping quality");
+        if (pendingHostAnchor.arAnchor != null || !string.IsNullOrEmpty(currentResolvingAnchor.AnchorID))
+        {
+            return;
+        }
+
+        quality = arAnchorManager.EstimateFeatureMapQualityForHosting(GetCameraPose());
+        switch (quality)
+        {
+            case FeatureMapQuality.Insufficient:
+                ARPlacementManager.Instance.mappingQualityText.text = $"Mapping Quality: <color=red>{quality}</color>";
+                break;
+            case FeatureMapQuality.Sufficient:
+                ARPlacementManager.Instance.mappingQualityText.text = $"Mapping Quality: <color=yellow>{quality}</color>";
+                break;
+            case FeatureMapQuality.Good:
+                ARPlacementManager.Instance.mappingQualityText.text = $"Mapping Quality: <color=green>{quality}</color>";
+                break;
+        }
     }
 
     private Pose GetCameraPose()
@@ -107,7 +142,7 @@ public class ARCloudAnchorManager : MonoBehaviour
 
 
         cloudAnchor = arAnchorManager.HostCloudAnchor(pendingHostAnchor.arAnchor, 1);
-        progressText.gameObject.SetActive(true);
+        progressTextBox.gameObject.SetActive(true);
         progressText.text = "Hosting...";
 
         if (cloudAnchor == null)
@@ -137,7 +172,7 @@ public class ARCloudAnchorManager : MonoBehaviour
 
             quality = arAnchorManager.EstimateFeatureMapQualityForHosting(GetCameraPose());
             cloudAnchor = arAnchorManager.ResolveCloudAnchorId(anchorIdToResolve);
-            progressText.gameObject.SetActive(true);
+            progressTextBox.gameObject.SetActive(true);
             progressText.text = "Resolving...";
 
             if (cloudAnchor == null)
@@ -179,17 +214,15 @@ public class ARCloudAnchorManager : MonoBehaviour
             //ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory("CloudAnchor" + count, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, pendingHostAnchor.ObjectScale);
             ARCloudAnchorHistory saveAnchorHistory = new ARCloudAnchorHistory(pendingHostAnchor.AnchorName, anchorIdToResolve, creationTime, pendingHostAnchor.PrefabIndex, pendingHostAnchor.ObjectName, 
                 pendingHostAnchor.TitleText, pendingHostAnchor.BodyText, pendingHostAnchor.TitleTextFontSize, pendingHostAnchor.BodyTextFontSize, pendingHostAnchor.ObjectScale);
-            SaveCloudAnchorHistory(saveAnchorHistory);
+            //SaveCloudAnchorHistory(saveAnchorHistory);
+
+            DatabaseManager.Instance.SaveHistory(saveAnchorHistory, SaveSuccess);
+
             //PlayerPrefs.SetString(cloudAnchorsStorageKey, anchorIdToResolve);
             //PlayerPrefs.Save();
-            Debug.Log($"Save anchor prefab index is: {saveAnchorHistory.PrefabIndex}");
+            /*Debug.Log($"Save anchor prefab index is: {saveAnchorHistory.PrefabIndex}");
             Debug.Log($"Successfully hosted anchor: {anchorIdToResolve}");
-            Debug.Log($"Saved to PlayerPref: {PlayerPrefs.GetString(cloudAnchorsStorageKey)}");
-
-            Destroy(pendingHostAnchor.arAnchor);
-            pendingHostAnchor = new ARCloudAnchorHistory(0);
-
-
+            Debug.Log($"Saved to PlayerPref: {PlayerPrefs.GetString(cloudAnchorsStorageKey)}");*/       
 
         }
         else if(cloudAnchorState != CloudAnchorState.TaskInProgress)
@@ -273,10 +306,16 @@ public class ARCloudAnchorManager : MonoBehaviour
         PlayerPrefs.SetString(cloudAnchorsStorageKey, JsonUtility.ToJson(history));
     }
 
-    
+    private void SaveSuccess()
+    {
+        Debug.Log("Save success, resetting pendingHostAnchor");
+        Destroy(pendingHostAnchor.arAnchor);
+        pendingHostAnchor = new ARCloudAnchorHistory(0);
+    }
 
     void Update()
-    {
+    {        
+
         //timer
         if (countTimer)
         {

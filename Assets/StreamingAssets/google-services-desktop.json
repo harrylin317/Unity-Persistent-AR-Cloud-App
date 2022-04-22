@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "688010709575",
+    "firebase_url": "https://ar-object-database-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "ar-object-database",
+    "storage_bucket": "ar-object-database.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:688010709575:android:7517b7a454962da3397f62",
+        "android_client_info": {
+          "package_name": "com.Harry.PersistentARCloud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "688010709575-mku3logamjqad858a9u0pab19no5tv9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLCy81zSG57zbI3dw8IK4ZC7u2rHLbxNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "688010709575-mku3logamjqad858a9u0pab19no5tv9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
